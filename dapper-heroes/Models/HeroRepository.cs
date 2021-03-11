@@ -69,7 +69,6 @@ namespace dapper_heroes.Models
         {
             using (IDbConnection dbConnection = Connection)
             {
-                //string sQuery = @"SELECT * FROM tb_heroes WHERE hero_power = (SELECT TOP 1 MAX(hero_power) FROM tb_heroes)";
                 string sQuery = @"SELECT TOP 1 * FROM tb_heroes ORDER BY power DESC";
                 dbConnection.Open();
                 return dbConnection.Query<Hero>(sQuery).FirstOrDefault();
@@ -91,7 +90,8 @@ namespace dapper_heroes.Models
         {
             using (IDbConnection dbConnection = Connection)
             {
-                string sQuery = @"DELETE FROM tb_heroes WHERE id=@Id";
+                string sQuery = @"DELETE FROM tb_teams_heroes WHERE hero_idfk=@Id;
+                        DELETE FROM tb_heroes WHERE id=@Id";
                 dbConnection.Open();
                 dbConnection.Execute(sQuery, new { Id = id });
             }

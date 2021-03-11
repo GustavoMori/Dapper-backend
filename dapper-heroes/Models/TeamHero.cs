@@ -10,4 +10,11 @@ namespace dapper_heroes.Models
         public int hero_idfk { get; set; }
         public int team_idfk { get; set; }
     }
+
+    public class TeamHeroResponse
+    {
+        public Hero hero { get; set; }
+        public Team team { get; set; }
+    }
+
 }

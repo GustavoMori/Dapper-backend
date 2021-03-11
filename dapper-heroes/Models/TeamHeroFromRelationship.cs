@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 
 namespace dapper_heroes.Models
 {
-    public class Hero
+    public class TeamHeroFromRelationship
     {
         public int id { get; set; }
         public string name { get; set; }
         public int power { get; set; }
         public int agility { get; set; }
+
+        //public string 
 
     }
 }

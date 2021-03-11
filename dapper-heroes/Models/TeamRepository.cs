@@ -75,14 +75,30 @@ namespace dapper_heroes.Models
                 return dbConnection.Query<Team>(sQuery, new { Id_team = id_team }).FirstOrDefault();
             }
         }
+        public IEnumerable<Hero> GetHeroByRelationship(int id_team)
+        {
+            using (IDbConnection dbConnection = Connection)
+            {
+                string sQuery = @"SELECT 
+                                    h.*
+                                    FROM tb_teams_heroes AS g
+                                    INNER JOIN tb_heroes AS h ON g.hero_idfk = h.id
+                                    INNER JOIN tb_teams AS t ON g.team_idfK = t.id_team
+                                    WHERE t.id_team = @id_team ;";
+                dbConnection.Open();
+                return dbConnection.Query<Hero>(sQuery, new { id_team });
+            }
+        }
         #endregion
+
 
         #region DELETE
         public void Delete(int id_team)
         {
             using (IDbConnection dbConnection = Connection)
             {
-                string sQuery = @"DELETE FROM tb_teams WHERE id_team=@Id_team";
+                string sQuery = @"DELETE FROM tb_teams_heroes WHERE team_idfk=@Id_team
+                                  DELETE FROM tb_teams WHERE id_team=@Id_team";
                 dbConnection.Open();
                 dbConnection.Execute(sQuery, new { Id_team = id_team });
             }

@@ -32,6 +32,14 @@ namespace dapper_heroes.Controllers
             return teamRepository.GetById(id_team);
         }
 
+        [HttpGet("{id_team}/heroes")]
+        public IEnumerable<Hero> GetListHeroes(int id_team)
+        {
+            return teamRepository.GetHeroByRelationship(id_team);
+        }
+
+
+
         [HttpPost]
         public IActionResult Post([FromBody] Team team)
         {
