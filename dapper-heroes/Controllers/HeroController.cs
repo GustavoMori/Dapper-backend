@@ -57,7 +57,7 @@ namespace dapper_heroes.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                return StatusCode(409);
             }
 
         }

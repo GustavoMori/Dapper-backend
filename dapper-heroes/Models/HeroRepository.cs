@@ -15,7 +15,7 @@ namespace dapper_heroes.Models
         {
             connectionString = @"Server=(localdb)\MSSQLLocalDB;Initial Catalog=heroes;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         }
-        
+      
         public IDbConnection Connection
         {
             get
@@ -30,16 +30,26 @@ namespace dapper_heroes.Models
         {
             using (IDbConnection dbConnection = Connection)
             {
-                string sQuery = @"DECLARE @id INT
+                string nameAlreadyExistTable = @"SELECT * from tb_heroes WHERE NAME LIKE @name";
+                dbConnection.Open();
+                var nameAlreadyExist = dbConnection.Query<Hero>(nameAlreadyExistTable, new {name = hero.name}).SingleOrDefault();
+                dbConnection.Close();
+
+                if (nameAlreadyExist == null)
+                {
+                    string sQuery = @"DECLARE @id INT
                         insert into tb_heroes (name,power,agility) values (@name,@power,@agility);
                         SELECT @id = SCOPE_IDENTITY();
                         SELECT * FROM tb_heroes WHERE id = @id;";
+                    dbConnection.Open();
+                    var newHero = dbConnection.Query<Hero>(sQuery, new { name = hero.name, power = hero.power, agility = hero.agility }).SingleOrDefault();
+                    return newHero;
+                }
 
-                dbConnection.Open();
-                //dbConnection.Execute(sQuery, hero);
-                var newHero = dbConnection.Query<Hero>(sQuery, new { name = hero.name, power = hero.power, agility = hero.agility}).SingleOrDefault();
-                return newHero;
-
+                else
+                {
+                    throw new Exception("That name is already in use");
+                };
             }
         }
 
