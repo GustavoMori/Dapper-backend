@@ -38,6 +38,12 @@ namespace dapper_heroes.Controllers
             return teamRepository.GetHeroByRelationship(id_team);
         }
 
+        [HttpGet("{id}/teams")]
+        public IEnumerable<Team> GetListTeams(int id)
+        {
+            return teamRepository.GetTeamByRelationship(id);
+        }
+
 
 
         [HttpPost]
@@ -57,6 +63,48 @@ namespace dapper_heroes.Controllers
             catch (Exception ex)
             {
                 return StatusCode(409);
+            }
+
+        }
+
+        [HttpPost("relationship")]
+        public async Task<IActionResult> AddHeroInTeam([FromBody] TeamHero teamHero)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await teamRepository.AddHeroInTeam(teamHero);
+                    return Ok();
+                }
+
+                return BadRequest("falto algo");
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
+            }
+
+        }
+
+        [HttpPost("relationship/kick")]
+        public async Task<IActionResult> KickHero([FromBody] TeamHero teamHero)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    await teamRepository.KickHero(teamHero);
+                    return Ok();
+                }
+
+                return BadRequest("falto algo");
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex);
             }
 
         }

@@ -24,7 +24,6 @@ namespace dapper_heroes.Models
             }
         }
 
-
         #region POST
         public Team Add(Team team)
         {
@@ -52,6 +51,46 @@ namespace dapper_heroes.Models
                 };
 
 
+            }
+        }
+
+        public async Task AddHeroInTeam(TeamHero teamHero)
+        {
+            using (IDbConnection dbConnection = Connection)
+            {
+                //@variavel (pode ser qlqr nome
+                //que recebe etm q ser igual a coluna da tabela
+                string nameAlreadyExistTable = @"SELECT * from tb_teams_heroes WHERE team_idfk= @id_team  AND hero_idfk = @id_hero";
+                dbConnection.Open();
+                var nameAlreadyExist = dbConnection.Query<TeamHero>(nameAlreadyExistTable, new { id_team = teamHero.team_idfk, id_hero = teamHero.hero_idfk}).SingleOrDefault();
+                dbConnection.Close();
+
+                if(nameAlreadyExist == null)
+                {
+                    string query = @"INSERT INTO tb_teams_heroes (team_idfk, hero_idfk) values (@id_team, @id_hero)";
+                    using var db = new SqlConnection(connectionString);
+                    await db.ExecuteAsync(query, new { id_team = teamHero.team_idfk, id_hero = teamHero.hero_idfk });
+                }
+
+                else
+                {
+                    throw new Exception("That relationship already exist");
+                };
+            }
+        }
+
+
+
+        public async Task KickHero(TeamHero teamHero)
+        {
+            using (IDbConnection dbConnection = Connection)
+            {
+                //@variavel (pode ser qlqr nome
+                //que recebe tem q ser igual a coluna da tabela
+
+                string query = @"DELETE FROM tb_teams_heroes WHERE team_idfk = @id_team AND hero_idfk = @id_hero;";                     
+                using var db = new SqlConnection(connectionString);
+                await db.ExecuteAsync(query, new { id_team = teamHero.team_idfk, id_hero = teamHero.hero_idfk });
             }
         }
         #endregion
@@ -89,8 +128,23 @@ namespace dapper_heroes.Models
                 return dbConnection.Query<Hero>(sQuery, new { id_team });
             }
         }
-        #endregion
 
+
+        public IEnumerable<Team> GetTeamByRelationship(int id)
+        {
+            using (IDbConnection dbConnection = Connection)
+            {
+                string sQuery = @"SELECT 
+                                    t.*
+                                    FROM tb_teams_heroes AS g
+                                    INNER JOIN tb_heroes AS h ON g.hero_idfk = h.id
+                                    INNER JOIN tb_teams AS t ON g.team_idfK = t.id_team
+                                    WHERE h.id = @id ;";
+                dbConnection.Open();
+                return dbConnection.Query<Team>(sQuery, new { id });
+            }
+        }
+        #endregion
 
         #region DELETE
         public void Delete(int id_team)
